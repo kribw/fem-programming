@@ -33,3 +33,4 @@
 
 # Build folder
 BUILD/
+*CMakeLists.txt.user
