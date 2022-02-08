@@ -143,9 +143,9 @@ void FEMObject::computation() {
 }
 
 void FEMObject::updateHeight(float f) {
-  //  DVector<float> x = _A.invert() * (f * _b);
+  DVector<float> x = DMatrix<float>(_A.invert() * (f * _b)).toDVector();
 
-  //  for (int i = 0; i < _nodes.size(); i++) {
-  //    _nodes[i].setZ(x[i]);
-  //  }
+  for (int i = 0; i < _nodes.size(); i++) {
+    _nodes[i].setZ(x[i]);
+  }
 }
