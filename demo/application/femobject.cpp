@@ -70,19 +70,19 @@ void FEMObject::randomTriangulation(int n, float r) {
   this->insertAlways(TSVertex<float>(Point<float, 2>(0.0, 0.0)));
 
   // Foreach ring
-  for (int j = 0; j < m; j++) {
+  //  for (int j = 0; j < m; j++) {
 
-    // Foreach point in each ring
-    for (int i = 0; i < n * (j + 1); i++) {
-      Angle alpha = (i * M_2PI) / (n * (j + 1));
+  //    // Foreach point in each ring
+  //    for (int i = 0; i < n * (j + 1); i++) {
+  //      Angle alpha = (i * M_2PI) / (n * (j + 1));
 
-      // Rotation matrix
-      SqMatrix<float, 2> R = SqMatrix<float, 2>(alpha);
+  //      // Rotation matrix
+  //      SqMatrix<float, 2> R = SqMatrix<float, 2>(alpha);
 
-      Point<float, 2> p = R * Vector<float, 2>(r * (j + 1) / m + 1);
-      this->insertAlways(TSVertex<float>(p));
-    }
-  }
+  //      Point<float, 2> p = R * Vector<float, 2>(r * (j + 1) / m + 1);
+  //      this->insertAlways(TSVertex<float>(p));
+  //    }
+  //  }
 
   triangulateDelaunay();
   // Not sure if correct to call this here
@@ -124,8 +124,8 @@ void FEMObject::computation() {
     _A = DMatrix<float>(0, 0);
   }
 
-  for (i = 0; i < _nodes.size(); i++) {
-    for (j = 0; j < i; j++) {
+  for (int i = 0; i < _nodes.size(); i++) {
+    for (int j = 0; j < i; j++) {
       TSEdge<float> *edge = _nodes[i].getNeighbor(_nodes[j]);
 
       if (edge != NULL) {
@@ -135,11 +135,11 @@ void FEMObject::computation() {
     }
   }
 
-  Array<TSTriangle<float> *> triangles = _node[i].getTriangles();
-  for (i = 0; i < triangles.size(); i++) {
-    // compute diagonal element of the stiffness matrix
-    //  Then compute the load vector in the similar way.
-  }
+  //  Array<TSTriangle<float> *> triangles = _nodes[i].getTriangles();
+  //  for (int i = 0; i < triangles.size(); i++) {
+  //    // compute diagonal element of the stiffness matrix
+  //    //  Then compute the load vector in the similar way.
+  //  }
 }
 
 void FEMObject::updateHeight(float f) {
