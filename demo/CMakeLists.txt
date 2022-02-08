@@ -100,6 +100,8 @@ qt5_wrap_cpp( HDRS_MOC
   application/gmlibwrapper.h
   application/guiapplication.h
   application/window.h
+  application/node.h
+  application/femobject.h
 
   scenario.h
   )
@@ -132,6 +134,8 @@ target_sources( ${PROJECT_NAME} PRIVATE
   application/window.cpp
 
   application/main.cpp
+  application/node.cpp
+  application/femobject.cpp
 
   scenario.cpp
   )
