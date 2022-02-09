@@ -40,8 +40,6 @@ Vector<Vector<float, 2>, 3> FEMObject::findVectors(TSTriangle<float> *tr,
   }
 
   if (n->isThis(v[2])) {
-    std::swap(v[0], v[1]);
-    std::swap(v[1], v[2]);
     // Need to check this
   }
 
@@ -84,11 +82,11 @@ void FEMObject::randomTriangulation(int n, float r) {
   //    }
   //  }
 
-  triangulateDelaunay();
+  this->triangulateDelaunay();
   // Not sure if correct to call this here
 }
 
-void FEMObject::regularTriangulation(int m, int n, float r) {
+void FEMObject::regularTriangulation(int n, int m, float r) {
   // m = number of rings
   // n = number of points within boundary
   // r = radius
@@ -105,24 +103,26 @@ void FEMObject::regularTriangulation(int m, int n, float r) {
       // Rotation matrix
       SqMatrix<float, 2> R = SqMatrix<float, 2>(alpha);
 
-      Point<float, 2> p = R * Vector<float, 2>(r * (j + 1) / m + 1);
+      Point<float, 2> p = R * Vector<float, 2>(r * (j + 1) / m, 0.0);
       this->insertAlways(TSVertex<float>(p));
     }
   }
 
-  triangulateDelaunay();
-  // Not sure if correct to call this here
+  this->triangulateDelaunay();
 }
 
 void FEMObject::computation() {
-  for (int i = 0; i < _nodes.size(); i++) {
+  // Fill in the array of nodes
+  for (int i = 0; i < this->getSize(); i++) {
 
     // If the point does not belong to the boundary
-    //      if(Node::isThis(_no))
-    //    _nodes += Node((*this[i]));
-
-    _A = DMatrix<float>(0, 0);
+    if (!(*this)[i].boundary()) {
+      TSVertex<float> *vertex = this->getVertex(i);
+      _nodes += Node(vertex);
+    }
   }
+
+  _A = DMatrix<float>(0, 0);
 
   for (int i = 0; i < _nodes.size(); i++) {
     for (int j = 0; j < i; j++) {
