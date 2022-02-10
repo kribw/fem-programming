@@ -40,7 +40,8 @@ Vector<Vector<float, 2>, 3> FEMObject::findVectors(TSTriangle<float> *tr,
   }
 
   if (n->isThis(v[2])) {
-    // Need to check this
+    std::swap(v[0], v[2]);
+    std::swap(v[1], v[2]);
   }
 
   p0 = v[0]->getParameter();
@@ -112,7 +113,7 @@ void FEMObject::regularTriangulation(int n, int m, float r) {
 }
 
 void FEMObject::computation() {
-  // Fill in the array of nodes
+  // Fill in the array of _nodes
   for (int i = 0; i < this->getSize(); i++) {
 
     // If the point does not belong to the boundary
@@ -122,24 +123,49 @@ void FEMObject::computation() {
     }
   }
 
-  _A = DMatrix<float>(0, 0);
+  // Create [n x n] zero matrix (_A)
+  _A = DMatrix<float>(this->getSize());
 
+  // Compute elements of the stiffness matrix
   for (int i = 0; i < _nodes.size(); i++) {
     for (int j = 0; j < i; j++) {
       TSEdge<float> *edge = _nodes[i].getNeighbor(_nodes[j]);
 
-      if (edge != NULL) {
-
-        // compute non-diagonal element of the stiffness matrix
+      if (edge == NULL) {
+        _A[i][j] = _A[j][i] = 0;
+        continue;
       }
+
+      Vector<Vector<float, 2>, 3> vectors = findVectors(edge);
+      auto dd = 1 / (vectors[0] * vectors[0]);
+      auto dh1 = dd * vectors[1] * vectors[0];
+      auto dh2 = dd * vectors[2] * vectors[0];
+      auto area1 = std::abs(vectors[0] ^ vectors[1]);
+      auto area2 = std::abs(vectors[0] ^ vectors[2]);
+      auto h1 = dd * area1 * area1;
+      auto h2 = dd * area2 * area2;
+      _A[i][j] = _A[j][i] = (dh1 * (1 - dh1) / h1 - dd) * area1 / 2 +
+                            (dh2 * (1 - dh2) / h2 - dd) * area2 / 2;
     }
   }
 
-  //  Array<TSTriangle<float> *> triangles = _nodes[i].getTriangles();
-  //  for (int i = 0; i < triangles.size(); i++) {
-  //    // compute diagonal element of the stiffness matrix
-  //    //  Then compute the load vector in the similar way.
-  //  }
+  // Diagonal element
+  Array<TSTriangle<float> *> triangles = _nodes[i].getTriangles();
+  float s_tr = 0;
+  for (int i = 0; i < triangles.size(); i++) {
+    Vector<Vector<float, 2>, 3> vectors = findVectors(triangles[k], &_nodes[i]);
+    _A[i][i] +=
+        (vectors[2] * vectors[2]) / (2 * std::abs(vectors[0] * vectors[1]));
+    s_tr += triangles[i]->getArea2D();
+  }
+
+  // Compute load vector
+  for (int i = 0; i < _b.getDim1(); ++i) {
+    _b[i] = (1 / 3) *;
+  }
+
+  // Update heights using the coefficients (xi)
+  updateHeight(_f);
 }
 
 void FEMObject::updateHeight(float f) {
