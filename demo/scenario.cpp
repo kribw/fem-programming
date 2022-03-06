@@ -1,8 +1,5 @@
-
-#include <iostream>
-
-#include "application/femobject.h"
 #include "scenario.h"
+#include "application/femobject.h"
 #include "testtorus.h"
 
 // hidmanager
@@ -24,6 +21,8 @@ inline std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   out << std::endl;
   return out;
 }
+
+FEMObject *_femObject;
 
 void Scenario::initializeScenario() {
 
@@ -65,32 +64,23 @@ void Scenario::initializeScenario() {
   GMlib::Material mm(GMlib::GMmaterial::polishedBronze());
   mm.set(45.0);
 
-  auto femObject = new FEMObject();
-  femObject->regularTriangulation(4, 3, 1);
-  femObject->toggleDefaultVisualizer();
-  this->scene()->insert(femObject);
-  femObject->replot();
-
-  //  auto ptom = new TestTorus(1.0f, 0.4f, 0.6f);
-  //  ptom->toggleDefaultVisualizer();
-  //  ptom->sample(60,60,1,1);
-  //  this->scene()->insert(ptom);
-  //  auto ptrack = new GMlib::PathTrack();
-  //  ptrack->setLineWidth(2);
-  //  ptom->insert(ptrack);
-  //  auto ptrack2 = new GMlib::PathTrackArrows();
-  //  ptrack2->setArrowLength(2);
-  //  ptom->insert(ptrack2);
+  // Instantiate FEMObject and run demo
+  _femObject = new FEMObject();
+  _femObject->toggleDefaultVisualizer();
+  _femObject->demoRandom();
+  //  _femObject->demoRegular();
+  this->scene()->insert(_femObject);
 }
 
 void Scenario::cleanupScenario() {}
 
 void Scenario::callDefferedGL() {
+  // For some reason this does not replot objects properly
+  //    GMlib::Array<const GMlib::SceneObject *> e_obj;
+  //    this->scene()->getEditedObjects(e_obj);
+  //    for (int i = 0; i < e_obj.getSize(); i++)
+  //      //    if (e_obj(i)->isVisible())
+  //      e_obj[i]->replot();
 
-  GMlib::Array<const GMlib::SceneObject *> e_obj;
-  this->scene()->getEditedObjects(e_obj);
-
-  for (int i = 0; i < e_obj.getSize(); i++)
-    if (e_obj(i)->isVisible())
-      e_obj[i]->replot();
+  _femObject->replot();
 }
