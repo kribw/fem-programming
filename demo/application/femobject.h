@@ -21,6 +21,10 @@ public:
   void regularTriangulation(int n, int m, float r);
   void computation();
   void updateHeight(float f);
+  void setForce(float f);
+  void demoRegular();
+  void demoRandom();
+  void localSimulate(double dt);
 };
 
 #endif // FEMOBJECT_H
